@@ -5,8 +5,11 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_executable(VKR_1
         src/main.cpp
-        src/LegendrePolynomial.cpp
-        include/LegendrePolynomials.h
-        src/GramSchmidtProcess.cpp
-        include/GramSchmidtProcess.h
+        include/Chebyshev.hpp
+        include/Chebyshev.cpp
+        include/Legendre.cpp
+        include/Legendre.hpp
+        include/DataResult.h
+        include/Taylor.cpp
+        include/Taylor.hpp
 )
