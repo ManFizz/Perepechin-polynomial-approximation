@@ -7,7 +7,7 @@
 #include "DataResult.h"
 
 template<typename T>
-std::vector<DataResult<T>> WorkTaylor(T x, int maxCoefficient, std::function<T(T)> f);
+std::vector<DataResult<T>> WorkTaylor(T x, int maxCoefficient, std::function<T(T)> f, T result_x);
 
 #include "Taylor.cpp"
 

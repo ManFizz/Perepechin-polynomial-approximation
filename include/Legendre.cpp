@@ -1,7 +1,6 @@
 #include <vector>
 #include <cmath>
 #include <functional>
-#include <iostream>
 
 #include "DataResult.h"
 
@@ -49,7 +48,7 @@ T approximateFunctionLegendre(T x, const std::vector<T>& coefficients) {
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(const T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f) {
+std::vector<DataResult<T>> WorkLegendre(const T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, const T result_x) {
     std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
     for (int k = 0; k < maxCoefficient; k++) {
@@ -57,7 +56,7 @@ std::vector<DataResult<T>> WorkLegendre(const T x, const int maxCoefficient, con
         coefficients.push_back(coefficient);
 
         T result = approximateFunctionLegendre(x, coefficients);
-        DataResult<T>::AddData(results, result, x, k);
+        DataResult<T>::AddData(results, std::abs(result_x - result), x, k);
     }
     return results;
 }

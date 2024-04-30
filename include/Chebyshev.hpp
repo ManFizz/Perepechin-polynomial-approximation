@@ -7,7 +7,7 @@
 #include "DataResult.h"
 
 template<typename T>
-std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f);
+std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x);
 
 #include "Chebyshev.cpp"
 

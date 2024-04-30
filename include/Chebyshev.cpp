@@ -1,6 +1,7 @@
 #include <cmath>
 #include <vector>
 #include <functional>
+#include <iostream>
 
 #include "DataResult.h"
 
@@ -35,15 +36,16 @@ T approximateFunctionChebyshev(T x, const std::vector<T>& coefficients) {
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkChebyshev(const T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f) {
+std::vector<DataResult<T>> WorkChebyshev(const T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, const T result_x) {
     std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
     for(int k = 0; k < maxCoefficient; k++) {
-        T result = calculateCoefficientChebyshev<T>(k, numPoints, f);
-        coefficients.push_back(result);
+        T coeff = calculateCoefficientChebyshev<T>(k, numPoints, f);
+        coefficients.push_back(coeff);
 
-        T reslut = approximateFunctionChebyshev<T>(x, coefficients);
-        DataResult<T>::AddData(results, reslut, x, k);
+        T approxValue = approximateFunctionChebyshev<T>(x, coefficients);
+        std::cout << approxValue << std::endl << result_x << std::endl << std::abs(result_x - approxValue) << std::endl << std::endl;
+        DataResult<T>::AddData(results, std::abs(result_x - approxValue), x, k);
     }
     return results;
 }

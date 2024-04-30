@@ -82,23 +82,24 @@ T sinTaylorApproximation(T x, int nTerms) {
 
 template<typename T>
 void start() {
-    const T x = T(0.5);
-    const int maxCoefficient = 28;
+    const T x = T(1);
+    const int maxCoefficient = 20;
     const int numPoints = 100;
+    const T result_x = fsin(x);
 
     //Legendre
-    std::vector<DataResult<T>> dataResultsLegendre = WorkLegendre<T>(x, maxCoefficient, numPoints, fsin<T>);
+    std::vector<DataResult<T>> dataResultsLegendre = WorkLegendre<T>(x, maxCoefficient, numPoints, fsin<T>, result_x);
     std::string fileNameLegendre = generateFileName<T>("legendre", "sin");
     saveToFile(fileNameLegendre.c_str(), dataResultsLegendre);
 
     //Chenyshev
-    std::vector<DataResult<T>> dataResultsChebyshev = WorkChebyshev<T>(x, maxCoefficient, numPoints, fsin<T>);
+    std::vector<DataResult<T>> dataResultsChebyshev = WorkChebyshev<T>(x, maxCoefficient, numPoints, fsin<T>, result_x);
     std::string fileNameChebyshev = generateFileName<T>("chebyshev", "sin");
     saveToFile(fileNameChebyshev.c_str(), dataResultsChebyshev);
 
     //Taylor
     auto fsinTaylor = [](T x) -> T { return sinTaylorApproximation<T>(x, 10); };
-    std::vector<DataResult<T>> dataResultsTaylor = WorkTaylor<T>(x, maxCoefficient, fsinTaylor);
+    std::vector<DataResult<T>> dataResultsTaylor = WorkTaylor<T>(x, maxCoefficient, fsinTaylor, result_x);
     std::string fileNameTaylor = generateFileName<T>("taylor", "sin");
     saveToFile(fileNameTaylor.c_str(), dataResultsTaylor);
 }
