@@ -9,6 +9,6 @@
 template<typename T>
 std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x);
 
-#include "Chebyshev.cpp"
+#include "../Chebyshev.cpp"
 
 #endif // CHEBYSHEV_HPP

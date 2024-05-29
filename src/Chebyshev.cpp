@@ -1,9 +1,8 @@
 #include <cmath>
 #include <vector>
 #include <functional>
-#include <iostream>
 
-#include "DataResult.h"
+#include "include/DataResult.h"
 
 template<typename T>
 T chebyshevPolynomial(int n, T x) {

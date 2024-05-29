@@ -2,7 +2,7 @@
 #include <cmath>
 #include <functional>
 
-#include "DataResult.h"
+#include "include/DataResult.h"
 
 template<typename T>
 std::vector<DataResult<T>> WorkTaylor(const T x, const int maxCoefficient, std::function<T(T)> f, const T result_x) {

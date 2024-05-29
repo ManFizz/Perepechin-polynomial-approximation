@@ -8,9 +8,9 @@
 #include <memory>
 #include <cstdlib>
 
-#include "../include/Legendre.hpp"
-#include "../include/Chebyshev.hpp"
-#include "../include/Taylor.hpp"
+#include "include/Legendre.hpp"
+#include "include/Chebyshev.hpp"
+#include "include/Taylor.hpp"
 
 template<typename T>
 void saveToFile(const char* fileName, std::vector<DataResult<T>> dataResults) {

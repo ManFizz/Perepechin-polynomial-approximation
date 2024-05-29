@@ -2,7 +2,7 @@
 #include <cmath>
 #include <functional>
 
-#include "DataResult.h"
+#include "include/DataResult.h"
 
 template<typename T>
 T legendrePolynomial(int n, T x) {
