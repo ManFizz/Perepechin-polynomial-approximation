@@ -22,13 +22,11 @@ void saveToFile(const char* fileName, std::vector<DataResult<T>> dataResults) {
     }
 
     std::string outputString = oss.str();
-    //std::cout << outputString;
 
     std::ofstream outputFile(fileName);
     if (outputFile.is_open()) {
         outputFile << outputString;
         outputFile.close();
-        std::cout << "Данные сохранены в файл" << std::endl;
     } else {
         std::cerr << "Ошибка открытия файла" << std::endl;
     }
@@ -81,10 +79,7 @@ T sinTaylorApproximation(T x, int nTerms) {
 }
 
 template<typename T>
-void start() {
-    const T x = T(1);
-    const int maxCoefficient = 20;
-    const int numPoints = 100;
+void start(const int maxCoefficient, const int numPoints, T x) {
     const T result_x = fsin(x);
 
     //Legendre
@@ -105,7 +100,12 @@ void start() {
 }
 
 int main() {
-    start<long double>();
-    start<double>();
+    const int maxCoefficient = 20;
+    const int numPoints = 100;
+
+    start<long double>(maxCoefficient, numPoints, 1.0L);
+    start<double>(maxCoefficient, numPoints, 1.0);
+
+    std::cout << "Данные сохранены в файл" << std::endl;
     return 0;
 }

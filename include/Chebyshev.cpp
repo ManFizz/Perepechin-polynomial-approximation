@@ -44,7 +44,6 @@ std::vector<DataResult<T>> WorkChebyshev(const T x, const int maxCoefficient, co
         coefficients.push_back(coeff);
 
         T approxValue = approximateFunctionChebyshev<T>(x, coefficients);
-        std::cout << approxValue << std::endl << result_x << std::endl << std::abs(result_x - approxValue) << std::endl << std::endl;
         DataResult<T>::AddData(results, std::abs(result_x - approxValue), x, k);
     }
     return results;

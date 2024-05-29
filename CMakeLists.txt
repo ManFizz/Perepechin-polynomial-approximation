@@ -1,15 +1,14 @@
-cmake_minimum_required(VERSION 3.27)
-project(VKR_1)
+cmake_minimum_required(VERSION 3.10)
+project(VKR)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(VKR_1
-        src/main.cpp
-        include/Chebyshev.hpp
-        include/Chebyshev.cpp
-        include/Legendre.cpp
-        include/Legendre.hpp
-        include/DataResult.h
-        include/Taylor.cpp
-        include/Taylor.hpp
-)
+include_directories(${CMAKE_SOURCE_DIR}/lib)
+
+link_directories(${CMAKE_SOURCE_DIR}/lib)
+
+file(GLOB SOURCES "src/*.cpp" "lib/bignum.cpp")
+
+add_executable(${PROJECT_NAME} ${SOURCES})
+target_link_libraries(VKR chsvlib)
