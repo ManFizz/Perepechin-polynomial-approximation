@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include_directories(${CMAKE_SOURCE_DIR}/lib)
 link_directories(${CMAKE_SOURCE_DIR}/lib)
 
-file(GLOB SOURCES "src/*.cpp" "lib/bignum.cpp")
+file(GLOB SOURCES "src/main.cpp" "lib/bignum.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_link_libraries(VKR chsvlib)

@@ -3,9 +3,10 @@
 #include <functional>
 
 #include "include/DataResult.h"
+#include "include/helper.hpp"
 
 template<typename T>
-T chebyshevPolynomial(int n, T x) {
+T chebyshevPolynomial(int n, T& x) {
     if (n == 0) return T(1);
     if (n == 1) return x;
 
@@ -18,7 +19,7 @@ T calculateCoefficientChebyshev(int k, int numPoints, std::function<T(T)> f) {
     T weight = (k == 0) ? T(1.0 / numPoints) : T(2.0 / numPoints);
 
     for (int n = 0; n < numPoints; ++n) {
-        T x = std::cos(M_PI * (T(n) + T(0.5)) / T(numPoints));
+        T x = cos(bigfloat_t::pi * (T(n) + T(0.5)) / T(numPoints), 60);
         coefficient += weight * f(x) * chebyshevPolynomial<T>(k, x);
     }
 
@@ -35,7 +36,7 @@ T approximateFunctionChebyshev(T x, const std::vector<T>& coefficients) {
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkChebyshev(const T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, const T result_x) {
+std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x) {
     std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
     for(int k = 0; k < maxCoefficient; k++) {
@@ -43,7 +44,7 @@ std::vector<DataResult<T>> WorkChebyshev(const T x, const int maxCoefficient, co
         coefficients.push_back(coeff);
 
         T approxValue = approximateFunctionChebyshev<T>(x, coefficients);
-        DataResult<T>::AddData(results, std::abs(result_x - approxValue), x, k);
+        DataResult<T>::AddData(results, abs(result_x - approxValue), x, k);
     }
     return results;
 }

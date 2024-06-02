@@ -1,24 +1,23 @@
-#include <cmath>
 #include <sstream>
 #include <iomanip>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <cxxabi.h>
-#include <memory>
-#include <cstdlib>
+#include <utility>
 
 #include "include/Legendre.hpp"
 #include "include/Chebyshev.hpp"
 #include "include/Taylor.hpp"
 
-template<typename T>
-void saveToFile(const char* fileName, std::vector<DataResult<T>> dataResults) {
+#include "bignum.h"
+
+void saveToFile(const char* fileName, std::vector<DataResult<bigfloat_t>>& dataResults) {
     std::ostringstream oss;
-    oss << "step;x;result" << std::endl;
+    oss << "step;result" << std::endl;
 
     for(const auto& result : dataResults) {
-        oss << std::setw(2) << result.step << ";" << result.x << ";" << result.result << std::endl;
+        oss << std::setw(2) << result.step << ";" << static_cast<long double>(result.result) << std::endl;
     }
 
     std::string outputString = oss.str();
@@ -26,85 +25,51 @@ void saveToFile(const char* fileName, std::vector<DataResult<T>> dataResults) {
     std::ofstream outputFile(fileName);
     if (outputFile.is_open()) {
         outputFile << outputString;
+        std::cout << outputString; //For debug
         outputFile.close();
     } else {
         std::cerr << "Ошибка открытия файла" << std::endl;
     }
 }
 
-template <typename T>
-std::string getTypeName() {
-    int status = 0;
-    std::unique_ptr<char, void(*)(void*)> res{
-            abi::__cxa_demangle(typeid(T).name(), NULL, NULL, &status),
-            std::free
-    };
-    return (status == 0) ? res.get() : typeid(T).name();
-}
-
-template<typename T>
-std::string generateFileName(const std::string& methodName, const std::string& functionName) {
-    std::string typeName = getTypeName<T>();
-    if (typeName.find("long double") != std::string::npos) {
-        typeName = "long_double";
+bigfloat_t complexFunction(bigfloat_t x) {
+    if (x <= 0) {
+        return sin(5 * x, 54);
+    } else {
+        return 1 / (1 + 25 * x * x);
     }
-    else if (typeName.find("double") != std::string::npos) {
-        typeName = "double";
-    }
-    return methodName + "_" + typeName + "_" + functionName + ".csv";
 }
 
 template<typename T>
 T fsin(T x) {
-    return std::sin(x);
-}
-
-template<typename T>
-T factorial(int n) {
-    T result = 1;
-    for (int i = 2; i <= n; ++i) {
-        result *= i;
-    }
-    return result;
-}
-
-template<typename T>
-T sinTaylorApproximation(T x, int nTerms) {
-    T sum = 0;
-    for (int n = 0; n < nTerms; ++n) {
-        T term = (n % 2 == 0 ? 1 : -1) * std::pow(x, 2 * n + 1) / factorial<T>(2 * n + 1);
-        sum += term;
-    }
-    return sum;
+    //return complexFunction(x);
+    return sin(std::move(x), 54);
 }
 
 template<typename T>
 void start(const int maxCoefficient, const int numPoints, T x) {
-    const T result_x = fsin(x);
+    T result_x = fsin(x);
 
     //Legendre
     std::vector<DataResult<T>> dataResultsLegendre = WorkLegendre<T>(x, maxCoefficient, numPoints, fsin<T>, result_x);
-    std::string fileNameLegendre = generateFileName<T>("legendre", "sin");
-    saveToFile(fileNameLegendre.c_str(), dataResultsLegendre);
+    saveToFile("legendre_sin.csv", dataResultsLegendre);
 
-    //Chenyshev
+    //Chebyshev
     std::vector<DataResult<T>> dataResultsChebyshev = WorkChebyshev<T>(x, maxCoefficient, numPoints, fsin<T>, result_x);
-    std::string fileNameChebyshev = generateFileName<T>("chebyshev", "sin");
-    saveToFile(fileNameChebyshev.c_str(), dataResultsChebyshev);
+    saveToFile("chebyshev_sin.csv", dataResultsChebyshev);
 
     //Taylor
-    auto fsinTaylor = [](T x) -> T { return sinTaylorApproximation<T>(x, 10); };
-    std::vector<DataResult<T>> dataResultsTaylor = WorkTaylor<T>(x, maxCoefficient, fsinTaylor, result_x);
-    std::string fileNameTaylor = generateFileName<T>("taylor", "sin");
-    saveToFile(fileNameTaylor.c_str(), dataResultsTaylor);
+    std::vector<DataResult<T>> dataResultsTaylor = WorkTaylor<T>(x, maxCoefficient, fsin<T>, result_x);
+    saveToFile("taylor_sin.csv", dataResultsTaylor);
 }
 
 int main() {
-    const int maxCoefficient = 20;
+    bigfloat_t x = bigfloat_t("0.765");
+
+    const int maxCoefficient = 21;
     const int numPoints = 100;
 
-    start<long double>(maxCoefficient, numPoints, 1.0L);
-    start<double>(maxCoefficient, numPoints, 1.0);
+    start<bigfloat_t>(maxCoefficient, numPoints, x);
 
     std::cout << "Данные сохранены в файл" << std::endl;
     return 0;
