@@ -1,5 +1,4 @@
 #include <vector>
-#include <functional>
 
 #include "include/DataResult.h"
 #include "include/helper.hpp"
@@ -61,10 +60,14 @@ std::vector<DataResult<T>> WorkTaylor(const T& x, const int maxCoefficient, cons
     coefficients.reserve(maxCoefficient);
 
     for (int k = 0; k < maxCoefficient; ++k) {
+        std::cout << "Taylor: " << k << std::endl;
+
         coefficients.push_back(calculateCoefficientTaylor(k, f, x0));
 
+        auto start = std::chrono::high_resolution_clock::now();
         T approxValue = approximateFunctionTaylor(x, coefficients, x0);
-        DataResult<T>::AddData(results, abs(result_x - approxValue), x, k);
+        auto end = std::chrono::high_resolution_clock::now();
+        DataResult<T>::AddData(results, approxValue, abs(result_x - approxValue), x, k, end - start);
     }
 
     return results;

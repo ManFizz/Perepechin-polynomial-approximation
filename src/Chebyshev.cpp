@@ -1,6 +1,5 @@
 #include <cmath>
 #include <vector>
-#include <functional>
 
 #include "include/DataResult.h"
 #include "include/helper.hpp"
@@ -40,11 +39,14 @@ std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints,
     std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
     for(int k = 0; k < maxCoefficient; k++) {
-        T coeff = calculateCoefficientChebyshev<T>(k, numPoints, f);
-        coefficients.push_back(coeff);
+        std::cout << "Chebyshev: " << k << std::endl;
 
+        coefficients.push_back(calculateCoefficientChebyshev<T>(k, numPoints, f));
+
+        auto start = std::chrono::high_resolution_clock::now();
         T approxValue = approximateFunctionChebyshev<T>(x, coefficients);
-        DataResult<T>::AddData(results, abs(result_x - approxValue), x, k);
+        auto end = std::chrono::high_resolution_clock::now();
+        DataResult<T>::AddData(results, approxValue,abs(result_x - approxValue), x, k, end - start);
     }
     return results;
 }

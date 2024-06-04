@@ -47,9 +47,14 @@ std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int
     }
 
     for (int k = 1; k <= maxCoefficient; ++k) {
+        std::cout << "Legendre: " << k << std::endl;
+
         std::vector<T> coefficients = fitLeastSquares(xValues, yValues, k, legendrePolynomial<T>);
+
+        auto start = std::chrono::high_resolution_clock::now();
         T result = approximateFunctionLegendre(x, coefficients);
-        DataResult<T>::AddData(results, abs(result_x - result), x, k);
+        auto end = std::chrono::high_resolution_clock::now();
+        DataResult<T>::AddData(results, result,abs(result_x - result), x, k, end - start);
     }
 
     return results;
