@@ -7,8 +7,7 @@
 #include "DataResult.h"
 #include "bignum.h"
 
-template<typename T>
-std::vector<DataResult<T>> WorkTaylor(T& x, int maxCoefficient, std::function<T(T)>& f, T& result_x);
+std::vector<DataResult<bigfloat_t>> WorkTaylor(bigfloat_t& x, int maxCoefficient, std::function<bigfloat_t(bigfloat_t)> f, bigfloat_t& result_x);
 
 #include "../Taylor.cpp"
 

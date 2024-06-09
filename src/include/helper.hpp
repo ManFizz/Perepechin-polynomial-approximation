@@ -6,12 +6,6 @@
 #include <iostream>
 #include "bignum.h"
 
-void print(std::vector<bigfloat_t>& v) {
-    for (const auto& value : v) {
-        std::cout << static_cast<long double>(value) << std::endl;
-    }
-}
-
 template<typename T>
 std::vector<T> gaussianElimination(std::vector<std::vector<T>>& A, std::vector<T>& b) {
     int n = A.size();
