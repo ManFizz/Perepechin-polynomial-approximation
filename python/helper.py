@@ -8,6 +8,6 @@ def print_coefficients(coefficients):
         formatted_str = formatted_str.rstrip('0').rstrip('.')
         formatted_coefficients.append(f'bigfloat_t("{formatted_str}")')
 
-    cpp_output = "bigfloat_t coefficients[] = {" + ", ".join(formatted_coefficients) + "};"
+    cpp_output = "std::vector<bigfloat_t> coefficients = {" + ", ".join(formatted_coefficients) + "};"
     print(cpp_output)
 

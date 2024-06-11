@@ -6,6 +6,27 @@
 #include <iostream>
 #include "bignum.h"
 
+std::string toString(const bigfloat_t& number, int precision) {
+    bigfloat_t scale = pow(bigfloat_t(10), precision);
+    bigfloat_t scaled = number * scale;
+    bigfloat_t integerPart = floor(scaled);
+
+    std::ostringstream stream;
+    stream << std::fixed << std::setprecision(0) << static_cast<long double>(integerPart);
+    std::string result = stream.str();
+
+    if (precision > 0) {
+        if (result.length() <= precision) {
+            std::string zeros(precision + 1 - result.length(), '0');
+            result = "0." + zeros + result;
+        } else {
+            result.insert(result.length() - precision, ".");
+        }
+    }
+
+    return result;
+}
+
 template<typename T>
 std::vector<T> gaussianElimination(std::vector<std::vector<T>>& A, std::vector<T>& b) {
     int n = A.size();

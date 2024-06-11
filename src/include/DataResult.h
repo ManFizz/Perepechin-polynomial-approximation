@@ -21,8 +21,8 @@ public:
     }
 
     friend std::ostream& operator<<(std::ostream& os, const DataResult<T>& dr) {
-        os << "Result: " << static_cast<long double>(dr.result)
-           << ", Diff: " << std::scientific << std::setprecision(0) << static_cast<long double>(dr.difference)
+        os << "Result: " << toString(dr.result, 300)
+           << ", Diff: " << std::scientific << std::setprecision(0) << toString(dr.difference, 300)
            << ", Step: " << dr.step
            << ", Time: " << std::fixed << std::setprecision(6) << dr.computationTime.count() << "s";
         return os;

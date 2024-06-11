@@ -5,11 +5,21 @@
 #include "include/helper.hpp"
 
 template<typename T>
-T chebyshevPolynomial(int n, T& x) {
+T chebyshevPolynomial(int n, T x) {
     if (n == 0) return T(1);
     if (n == 1) return x;
 
-    return 2 * x * chebyshevPolynomial(n - 1, x) - chebyshevPolynomial(n - 2, x);
+    T Tn_2 = T(1);
+    T Tn_1 = x;
+    T Tn;
+
+    for (int i = 2; i <= n; ++i) {
+        Tn = 2 * x * Tn_1 - Tn_2;
+        Tn_2 = Tn_1;
+        Tn_1 = Tn;
+    }
+
+    return Tn;
 }
 
 template<typename T>
@@ -38,15 +48,20 @@ template<typename T>
 std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x) {
     std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
-    for(int k = 0; k < maxCoefficient; k++) {
-        std::cout << "Chebyshev: " << k << std::endl;
 
-        coefficients.push_back(calculateCoefficientChebyshev<T>(k, numPoints, f));
+    std::cout << "Chebyshev:" << std::endl;
+    for(int k = 0; k < maxCoefficient; k++) {
+
+        coefficients.push_back(calculateCoefficientChebyshev(k, numPoints, f));
 
         auto start = std::chrono::high_resolution_clock::now();
         T approxValue = approximateFunctionChebyshev<T>(x, coefficients);
         auto end = std::chrono::high_resolution_clock::now();
-        DataResult<T>::AddData(results, approxValue,abs(result_x - approxValue), x, k, end - start);
+
+        auto result = DataResult<T>(approxValue, abs(result_x - approxValue), x, k, end - start);
+        results.emplace_back(result);
+
+        std::cout << result << std::endl;
     }
     return results;
 }

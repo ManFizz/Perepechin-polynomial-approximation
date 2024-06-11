@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include "include/helper.hpp"
 
 #include "include/Legendre.hpp"
 #include "include/Chebyshev.hpp"
@@ -15,8 +16,7 @@ void saveToFile(const char* fileName, std::vector<DataResult<bigfloat_t>>& dataR
     oss << "step;result" << std::endl;
 
     for(const auto& result : dataResults) {
-        oss << std::setw(2) << result.step << ";" << static_cast<long double>(result.result) << std::endl;
-        std::cout << result << std::endl; //For debug
+        oss << std::setw(2) << result.step << ";" << toString(result.difference, 150) << std::endl;
     }
 
     std::string outputString = oss.str();
@@ -30,44 +30,50 @@ void saveToFile(const char* fileName, std::vector<DataResult<bigfloat_t>>& dataR
     }
 }
 
-bigfloat_t complexFunction(bigfloat_t x) {
-    if (x <= 0) {
-        return sin(5 * x, 54);
-    } else {
-        return 1 / (1 + 25 * x * x);
-    }
+template<typename T>
+T fsin(T x) {
+    return sin(std::move(x), 150);
 }
 
 template<typename T>
-T fsin(T x) {
-    //return complexFunction(x);
-    return sin(std::move(x), 54);
+T fcos(T x) {
+    return cos(std::move(x), 150);
 }
 
-void start(const int maxCoefficient, const int numPoints, bigfloat_t x) {
-    bigfloat_t result_x = fsin(x);
+void test_cos(const int maxCoefficient, const int numPoints, bigfloat_t x, bigfloat_t result) {
+    std::cout << "Result: " << static_cast<long double>(result) << std::endl;
 
-    //Legendre
-    //std::vector<DataResult<T>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<T>, result_x);
-    //saveToFile("legendre_sin.csv", dataResultsLegendre);
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result);
+    saveToFile("legendre_cos.csv", dataResultsLegendre);
 
-    //Chebyshev
-    //std::vector<DataResult<T>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<T>, result_x);
-    //saveToFile("chebyshev_sin.csv", dataResultsChebyshev);
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result);
+    saveToFile("chebyshev_cos.csv", dataResultsChebyshev);
 
-    //Taylor
-    std::vector<DataResult<bigfloat_t>> dataResultsTaylor = WorkTaylor(x, maxCoefficient, fsin<bigfloat_t>, result_x);
+    std::vector<DataResult<bigfloat_t>> dataResultsTaylor = WorkTaylor(x, maxCoefficient, result, approximateCosTaylor);
+    saveToFile("taylor_cos.csv", dataResultsTaylor);
+}
+
+void test_sin(const int maxCoefficient, const int numPoints, bigfloat_t x, bigfloat_t result) {
+    std::cout << "Result: " << static_cast<long double>(result) << std::endl;
+
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result);
+    saveToFile("legendre_sin.csv", dataResultsLegendre);
+
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result);
+    saveToFile("chebyshev_sin.csv", dataResultsChebyshev);
+
+    std::vector<DataResult<bigfloat_t>> dataResultsTaylor = WorkTaylor(x, maxCoefficient, result, approximateSinTaylor);
     saveToFile("taylor_sin.csv", dataResultsTaylor);
 }
 
-const bigfloat_t dotti = bigfloat_t("0.73908513321516064165531208767387340401341175890075746496568063577328465488354759459937610693176653184980124664398716302771490369130842031578044057462077868852490389153928950778242826380949334414333694");
+const bigfloat_t dotti = bigfloat_t("0.73908513321516064165531208767387340401341175890075746496568063577328465488354759459937610693176653184980124664398716302771490369130842031578044057462077868852490389153928943884509523480133563127677223158095635377657245120437341993643351253840978003434064670047940214347808027180188377113613820420663163350372779916967312232300613886582036217708109978970626842405880948986832618606004858989585487257367640150752276081803914595181016281591200964616460675440513264151710644662811093608258487837138395556");
 
 int main() {
-    bigfloat_t x = dotti;
-
-    const int maxCoefficient = 14;
+    const int maxCoefficient = 10;
     const int numPoints = 50;
-    start(maxCoefficient, numPoints, x);
+
+    test_cos(maxCoefficient, numPoints, dotti, dotti);
+    test_sin(maxCoefficient, numPoints, dotti, bigfloat_t("0.67361202918321483798668632649947915576381006324563461167129415074298319680434205756865987254499083621813584242002576882874918682369156027722129167141202959783080248342205558200180587832088191609565958630174311767831827545530383713935689567163198569612047443746570454427272544946788390174032078634636807560004022161336572297769140375686838943598682945839428016636173327319033980405604038938951618108883169625242256649059744788462547393420267330533052743264179917607536411059535143722416357253787025157"));
 
     return 0;
 }

@@ -23,12 +23,11 @@ T legendrePolynomial(int n, T x) {
     return Pn;
 }
 
-// Аппроксимация функции Лежандра
 template<typename T>
 T approximateFunctionLegendre(const T& x, const std::vector<T>& coefficients) {
     T sum = T(0.0);
     for (size_t k = 0; k < coefficients.size(); ++k) {
-        sum += coefficients[k] * legendrePolynomial(static_cast<int>(k), x);
+        sum += coefficients[k] * legendrePolynomial((int)(k), x);
     }
     return sum;
 }
@@ -46,15 +45,19 @@ std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int
         yValues[i] = f(xValues[i]);
     }
 
+    std::cout << "Legendre:"<< std::endl;
     for (int k = 1; k <= maxCoefficient; ++k) {
-        std::cout << "Legendre: " << k << std::endl;
 
         std::vector<T> coefficients = fitLeastSquares(xValues, yValues, k, legendrePolynomial<T>);
 
         auto start = std::chrono::high_resolution_clock::now();
-        T result = approximateFunctionLegendre(x, coefficients);
+        T approxValue = approximateFunctionLegendre(x, coefficients);
         auto end = std::chrono::high_resolution_clock::now();
-        DataResult<T>::AddData(results, result,abs(result_x - result), x, k, end - start);
+
+        auto result = DataResult<T>(approxValue, abs(result_x - approxValue), x, k, end - start);
+        results.emplace_back(result);
+
+        std::cout << result << std::endl;
     }
 
     return results;
