@@ -7,8 +7,11 @@
 #include "bignum.h"
 
 std::string toString(const bigfloat_t& number, int precision) {
+    bool isNegative = number < 0;
+    bigfloat_t absNumber = isNegative ? -number : number;
+
     bigfloat_t scale = pow(bigfloat_t(10), precision);
-    bigfloat_t scaled = number * scale;
+    bigfloat_t scaled = absNumber * scale;
     bigfloat_t integerPart = floor(scaled);
 
     std::ostringstream stream;
@@ -22,6 +25,10 @@ std::string toString(const bigfloat_t& number, int precision) {
         } else {
             result.insert(result.length() - precision, ".");
         }
+    }
+
+    if (isNegative) {
+        result = "-" + result;
     }
 
     return result;
