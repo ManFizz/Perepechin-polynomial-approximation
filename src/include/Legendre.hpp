@@ -9,7 +9,7 @@
 #include "bignum.h"
 
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x);
+std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel);
 
 #include "../Legendre.cpp"
 

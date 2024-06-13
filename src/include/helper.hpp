@@ -107,4 +107,48 @@ std::vector<T> fitLeastSquares(const std::vector<T>& xValues, const std::vector<
     return gaussianElimination(ATA, ATb);
 }
 
+void createFileIfNotExists(const std::string& filename) {
+    std::ifstream infile(filename);
+    if (!infile.good()) {
+        std::ofstream file(filename);
+        if (!file.is_open())
+            std::cerr << "Не удалось создать файл: " << filename << std::endl;
+        file.close();
+    }
+}
+
+template<typename T>
+void saveCoefficients(const std::vector<T>& coefficients, const std::string& filename) {
+    createFileIfNotExists(filename);
+
+    std::ofstream outFile(filename);
+    if (!outFile) {
+        std::cerr << "Не удалось открыть файл с коэфициентами." << std::endl;
+        return;
+    }
+
+    for (const auto& coef : coefficients) {
+        outFile << toString(coef, 250) << std::endl;
+    }
+    outFile.close();
+}
+
+template<typename T>
+bool loadCoefficients(std::vector<T>& coefficients, const std::string& filename) {
+    createFileIfNotExists(filename);
+
+    std::ifstream inFile(filename);
+    if (!inFile) {
+        std::cerr << "Не удалось открыть файл с коэфициентами." << std::endl;
+        return false;
+    }
+
+    std::string value;
+    while (inFile >> value) {
+        coefficients.push_back(T(value)*10);
+    }
+    inFile.close();
+    return true;
+}
+
 #endif // VKR_HELPER_HPP

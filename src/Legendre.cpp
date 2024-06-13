@@ -1,6 +1,6 @@
 #include <vector>
-#include <functional>
 #include <iostream>
+#include <omp.h>
 
 #include "include/DataResult.h"
 #include "include/helper.hpp"
@@ -33,7 +33,29 @@ T approximateFunctionLegendre(const T& x, const std::vector<T>& coefficients) {
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x) {
+T approximateFunctionLegendreOMP(const T& x, const std::vector<T>& coefficients) {
+    int num_threads = omp_get_max_threads();
+    std::vector<T> local_sums(num_threads, T(0.0));
+
+    #pragma omp parallel
+    {
+        int thread_id = omp_get_thread_num();
+        #pragma omp for
+        for (size_t k = 0; k < coefficients.size(); ++k) {
+            local_sums[thread_id] += coefficients[k] * legendrePolynomial((int)k, x);
+        }
+    }
+
+    T sum = T(0.0);
+    for (T local_sum : local_sums) {
+        sum += local_sum;
+    }
+
+    return sum;
+}
+
+template<typename T>
+std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel) {
     std::vector<DataResult<T>> results;
     std::vector<T> xValues(numPoints);
     std::vector<T> yValues(numPoints);
@@ -49,9 +71,13 @@ std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int
     for (int k = 1; k <= maxCoefficient; ++k) {
 
         std::vector<T> coefficients = fitLeastSquares(xValues, yValues, k, legendrePolynomial<T>);
-
+        T approxValue;
         auto start = std::chrono::high_resolution_clock::now();
-        T approxValue = approximateFunctionLegendre(x, coefficients);
+        if (isParallel) {
+            approxValue = approximateFunctionLegendreOMP(x, coefficients);
+        } else {
+            approxValue = approximateFunctionLegendre(x, coefficients);
+        }
         auto end = std::chrono::high_resolution_clock::now();
 
         auto result = DataResult<T>(approxValue, abs(result_x - approxValue), x, k, end - start);
