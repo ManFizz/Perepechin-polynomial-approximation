@@ -90,29 +90,29 @@ T approximateFunctionChebyshevOMP(const T& x, const std::vector<T>& coefficients
     return sum;
 }
 
-const std::string fileName = "chebyshev_coefficients.txt";
+const std::string ChebyshevFileName = "chebyshev_coefficients.txt";
 
 template<typename T>
 std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x, bool isParallel) {
-    std::vector<DataResult<T>> results;
     std::vector<T> coefficients = {};
     std::vector<T> loadedCoefficients = {};
-    loadCoefficients(loadedCoefficients, fileName);
-    if (loadedCoefficients.size() < maxCoefficient) {
-        std::cout << "Вычисление коэфициентов" << std::endl;
+    loadCoefficients(loadedCoefficients, ChebyshevFileName);
+    if (loadedCoefficients.size() - 1 < maxCoefficient) {
+        std::cout << "Вычисление коэффициентов" << std::endl;
         coefficients.resize(maxCoefficient);
         std::copy(loadedCoefficients.begin(), loadedCoefficients.end(), coefficients.begin());
         for (int k = loadedCoefficients.size(); k < maxCoefficient; k++) {
             coefficients[k] = calculateCoefficientChebyshevOMP(k, numPoints, f);
-            std::cout << "Вычислен " << k+1 << " коэфициент" << std::endl;
+            std::cout << "Вычислен " << k+1 << " коэффициент" << std::endl;
         }
-        saveCoefficients(coefficients, fileName);
+        saveCoefficients(coefficients, ChebyshevFileName);
         std::cout << "Вычисление окончено" << std::endl;
     } else {
-        std::cout << "Коэфициенты были загружены из файла" << std::endl;
+        std::cout << "Коэффициенты были загружены из файла" << std::endl;
         coefficients = loadedCoefficients;
     }
 
+    std::vector<DataResult<T>> results;
     std::cout << "Chebyshev:" << std::endl;
     for (int k = 0; k < maxCoefficient; k++) {
         std::vector<T> currentCoefficients(coefficients.begin(), coefficients.begin() + k + 1);

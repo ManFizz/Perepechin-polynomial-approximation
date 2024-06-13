@@ -54,29 +54,45 @@ T approximateFunctionLegendreOMP(const T& x, const std::vector<T>& coefficients)
     return sum;
 }
 
+const std::string LegendreFileName = "legendre_coefficients.txt";
+
 template<typename T>
 std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel) {
-    std::vector<DataResult<T>> results;
-    std::vector<T> xValues(numPoints);
-    std::vector<T> yValues(numPoints);
-    T a = -1.0, b = 1.0;
-    T h = (b - a) / (numPoints - 1);
+    std::vector<T> coefficients= {};
+    std::vector<T> loadedCoefficients = {};
+    loadCoefficients(loadedCoefficients, LegendreFileName);
+    if (loadedCoefficients.size() - 1 < maxCoefficient) {
+        std::cout << "Вычисление коэффициентов" << std::endl;
 
-    for (int i = 0; i < numPoints; ++i) {
-        xValues[i] = a + i * h;
-        yValues[i] = f(xValues[i]);
+        std::vector<T> xValues(numPoints);
+        std::vector<T> yValues(numPoints);
+        T a = -1.0, b = 1.0;
+        T h = (b - a) / (numPoints - 1);
+
+        for (int i = 0; i < numPoints; ++i) {
+            xValues[i] = a + i * h;
+            yValues[i] = f(xValues[i]);
+        }
+
+        coefficients = fitLeastSquares(xValues, yValues, maxCoefficient, legendrePolynomial<T>);
+        saveCoefficients(coefficients, LegendreFileName);
+        std::cout << "Вычисление окончено" << std::endl;
+    } else {
+        std::cout << "Коэффициенты были загружены из файла" << std::endl;
+        coefficients = loadedCoefficients;
     }
 
+    std::vector<DataResult<T>> results;
     std::cout << "Legendre:"<< std::endl;
-    for (int k = 1; k <= maxCoefficient; ++k) {
+    for (int k = 0; k < maxCoefficient; ++k) {
+        std::vector<T> currentCoefficients(coefficients.begin(), coefficients.begin() + k + 1);
 
-        std::vector<T> coefficients = fitLeastSquares(xValues, yValues, k, legendrePolynomial<T>);
         T approxValue;
         auto start = std::chrono::high_resolution_clock::now();
         if (isParallel) {
-            approxValue = approximateFunctionLegendreOMP(x, coefficients);
+            approxValue = approximateFunctionLegendreOMP(x, currentCoefficients);
         } else {
-            approxValue = approximateFunctionLegendre(x, coefficients);
+            approxValue = approximateFunctionLegendre(x, currentCoefficients);
         }
         auto end = std::chrono::high_resolution_clock::now();
 

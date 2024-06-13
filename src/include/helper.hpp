@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include "bignum.h"
+#include <omp.h>
 
 std::string toString(const bigfloat_t& number, int precision) {
     bool isNegative = number < 0;
@@ -41,9 +42,13 @@ std::vector<T> gaussianElimination(std::vector<std::vector<T>>& A, std::vector<T
     for (int i = 0; i < n; ++i) {
         // Partial pivoting
         int maxRow = i;
+        #pragma omp parallel for shared(maxRow)
         for (int k = i + 1; k < n; ++k) {
-            if (abs(A[k][i]) > abs(A[maxRow][i])) {
-                maxRow = k;
+            #pragma omp critical
+            {
+                if (abs(A[k][i]) > abs(A[maxRow][i])) {
+                    maxRow = k;
+                }
             }
         }
 
@@ -51,6 +56,7 @@ std::vector<T> gaussianElimination(std::vector<std::vector<T>>& A, std::vector<T
         std::swap(b[maxRow], b[i]);
 
         // Eliminate column i
+        #pragma omp parallel for
         for (int k = i + 1; k < n; ++k) {
             T c = -A[k][i] / A[i][i];
             for (int j = i; j < n; ++j) {
@@ -68,7 +74,8 @@ std::vector<T> gaussianElimination(std::vector<std::vector<T>>& A, std::vector<T
     std::vector<T> x(n);
     for (int i = n - 1; i >= 0; i--) {
         x[i] = b[i] / A[i][i];
-        for (int k = i - 1; k >= 0; k--) {
+        #pragma omp parallel for
+        for (int k = 0; k < i; ++k) {
             b[k] -= A[k][i] * x[i];
         }
     }
@@ -91,15 +98,22 @@ std::vector<T> fitLeastSquares(const std::vector<T>& xValues, const std::vector<
     }
 
     std::vector<std::vector<T>> ATA(degree + 1, std::vector<T>(degree + 1, T(0)));
-    std::vector<T> ATb(degree + 1, T(0));
 
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i <= degree; ++i) {
         for (int j = 0; j <= degree; ++j) {
             for (int k = 0; k < n; ++k) {
+                #pragma omp critical
                 ATA[i][j] += A[k][i] * A[k][j];
             }
         }
+    }
+
+    std::vector<T> ATb(degree + 1, T(0));
+    #pragma omp parallel for
+    for (int i = 0; i <= degree; ++i) {
         for (int k = 0; k < n; ++k) {
+            #pragma omp critical
             ATb[i] += A[k][i] * b[k];
         }
     }
