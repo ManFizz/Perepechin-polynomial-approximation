@@ -3,13 +3,14 @@
 
 #include <vector>
 #include <string>
-#include <functional>
 
 #include "DataResult.h"
-#include "bignum.h"
+
+const std::string LegendreCosFileName = "legendre_coefficients_cos.txt";
+const std::string LegendreSinFileName = "legendre_coefficients_sin.txt";
 
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel);
+std::vector<DataResult<T>> WorkLegendre(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients);
 
 #include "../Legendre.cpp"
 

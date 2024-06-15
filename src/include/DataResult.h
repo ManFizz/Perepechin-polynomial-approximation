@@ -16,10 +16,6 @@ public:
     DataResult(T res, T diff, T x, int s, std::chrono::duration<double> t)
     : result(res), difference(diff), x(x), step(s), computationTime(t) {}
 
-    static void AddData(std::vector<DataResult<T>>& data, T r, T diff, T x, int s, std::chrono::duration<double> t) {
-        data.emplace_back(r, diff, x, s, t);
-    }
-
     friend std::ostream& operator<<(std::ostream& os, const DataResult<T>& dr) {
         os << "Result: " << toString(dr.result, 300)
            << ", Diff: " << std::scientific << std::setprecision(0) << toString(dr.difference, 300)

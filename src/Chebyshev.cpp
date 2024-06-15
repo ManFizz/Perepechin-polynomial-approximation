@@ -90,14 +90,14 @@ T approximateFunctionChebyshevOMP(const T& x, const std::vector<T>& coefficients
     return sum;
 }
 
-const std::string ChebyshevFileName = "chebyshev_coefficients.txt";
-
 template<typename T>
-std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x, bool isParallel) {
+std::vector<T> LoadCoeff(int maxCoefficient, std::string fileCoefficients, int numPoints, std::function<T(T)> f) {
     std::vector<T> coefficients = {};
-    std::vector<T> loadedCoefficients = {};
-    loadCoefficients(loadedCoefficients, ChebyshevFileName);
-    if (loadedCoefficients.size() - 1 < maxCoefficient) {
+    static std::vector<T> loadedCoefficients = {};
+    if(!loadedCoefficients.empty())
+        loadCoefficients(loadedCoefficients, fileCoefficients);
+
+    if (loadedCoefficients.size() <= maxCoefficient) {
         std::cout << "Вычисление коэффициентов" << std::endl;
         coefficients.resize(maxCoefficient);
         std::copy(loadedCoefficients.begin(), loadedCoefficients.end(), coefficients.begin());
@@ -105,13 +105,18 @@ std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints,
             coefficients[k] = calculateCoefficientChebyshevOMP(k, numPoints, f);
             std::cout << "Вычислен " << k+1 << " коэффициент" << std::endl;
         }
-        saveCoefficients(coefficients, ChebyshevFileName);
+        saveCoefficients(coefficients, fileCoefficients);
         std::cout << "Вычисление окончено" << std::endl;
     } else {
         std::cout << "Коэффициенты были загружены из файла" << std::endl;
         coefficients = loadedCoefficients;
     }
+    return coefficients;
+}
 
+template<typename T>
+std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
+    std::vector<T> coefficients = LoadCoeff<T>(maxCoefficient, fileCoefficients, numPoints, f);
     std::vector<DataResult<T>> results;
     std::cout << "Chebyshev:" << std::endl;
     for (int k = 0; k < maxCoefficient; k++) {

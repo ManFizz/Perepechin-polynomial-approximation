@@ -47,10 +47,10 @@ void test_cos(const int maxCoefficient, const int numPoints, bigfloat_t x, bigfl
     std::cout << "--  Start testing cos  --" << std::endl;
     std::cout << "Result: " << toString(result, 150) << std::endl;
 
-    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, false);
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, false, LegendreCosFileName);
     saveToFile("legendre_cos.csv", dataResultsLegendre);
 
-    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, false);
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, false, ChebyshevCosFileName);
     saveToFile("chebyshev_cos.csv", dataResultsChebyshev);
 
     std::vector<DataResult<bigfloat_t>> dataResultsTaylor = WorkTaylor(x, maxCoefficient, result, approximateCosTaylor);
@@ -61,10 +61,10 @@ void test_sin(const int maxCoefficient, const int numPoints, bigfloat_t x, bigfl
     std::cout << "--  Start testing sin  --" << std::endl;
     std::cout << "Result: " << toString(result, 150) << std::endl;
 
-    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, false);
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendre = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, false, LegendreSinFileName);
     saveToFile("legendre_sin.csv", dataResultsLegendre);
 
-    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, false);
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshev = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, false, ChebyshevSinFileName);
     saveToFile("chebyshev_sin.csv", dataResultsChebyshev);
 
     std::vector<DataResult<bigfloat_t>> dataResultsTaylor = WorkTaylor(x, maxCoefficient, result, approximateSinTaylor);
@@ -75,10 +75,10 @@ void test_cos_omp(const int maxCoefficient, const int numPoints, bigfloat_t x, b
     std::cout << "--  Start testing cos omp  --" << std::endl;
     std::cout << "Result: " << toString(result, 150) << std::endl;
 
-    std::vector<DataResult<bigfloat_t>> dataResultsLegendreOMP = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, true);
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendreOMP = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, true, LegendreCosFileName);
     saveToFile("legendre_cos_omp.csv", dataResultsLegendreOMP);
 
-    std::vector<DataResult<bigfloat_t>> dataResultsChebyshevOMP = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, true);
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshevOMP = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fcos<bigfloat_t>, result, true, ChebyshevCosFileName);
     saveToFile("chebyshev_cos_omp.csv", dataResultsChebyshevOMP);
 }
 
@@ -86,10 +86,10 @@ void test_sin_omp(const int maxCoefficient, const int numPoints, bigfloat_t x, b
     std::cout << "--  Start testing sin omp  --" << std::endl;
     std::cout << "Result: " << toString(result, 150) << std::endl;
 
-    std::vector<DataResult<bigfloat_t>> dataResultsLegendreOMP = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, true);
+    std::vector<DataResult<bigfloat_t>> dataResultsLegendreOMP = WorkLegendre<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, true, LegendreSinFileName);
     saveToFile("legendre_sin_omp.csv", dataResultsLegendreOMP);
 
-    std::vector<DataResult<bigfloat_t>> dataResultsChebyshevOMP = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, true);
+    std::vector<DataResult<bigfloat_t>> dataResultsChebyshevOMP = WorkChebyshev<bigfloat_t>(x, maxCoefficient, numPoints, fsin<bigfloat_t>, result, true, ChebyshevSinFileName);
     saveToFile("chebyshev_sin_omp.csv", dataResultsChebyshevOMP);
 }
 

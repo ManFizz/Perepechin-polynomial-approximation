@@ -54,14 +54,12 @@ T approximateFunctionLegendreOMP(const T& x, const std::vector<T>& coefficients)
     return sum;
 }
 
-const std::string LegendreFileName = "legendre_coefficients.txt";
-
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel) {
+std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
     std::vector<T> coefficients= {};
     std::vector<T> loadedCoefficients = {};
-    loadCoefficients(loadedCoefficients, LegendreFileName);
-    if (loadedCoefficients.size() - 1 < maxCoefficient) {
+    loadCoefficients(loadedCoefficients, fileCoefficients);
+    if (loadedCoefficients.size() <= maxCoefficient) {
         std::cout << "Вычисление коэффициентов" << std::endl;
 
         std::vector<T> xValues(numPoints);
@@ -75,7 +73,7 @@ std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int
         }
 
         coefficients = fitLeastSquares(xValues, yValues, maxCoefficient, legendrePolynomial<T>);
-        saveCoefficients(coefficients, LegendreFileName);
+        saveCoefficients(coefficients, fileCoefficients);
         std::cout << "Вычисление окончено" << std::endl;
     } else {
         std::cout << "Коэффициенты были загружены из файла" << std::endl;
