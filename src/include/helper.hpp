@@ -6,8 +6,12 @@
 #include <iostream>
 #include "bignum.h"
 #include <omp.h>
+#include "DataResult.h"
 
-std::string toString(const bigfloat_t& number, int precision) {
+#include <fstream>
+#include <sstream>
+
+std::string toString(const bigfloat_t& number, int precision = TO_STRING_PRECISION) {
     bool isNegative = number < 0;
     bigfloat_t absNumber = isNegative ? -number : number;
 
@@ -21,7 +25,7 @@ std::string toString(const bigfloat_t& number, int precision) {
 
     if (precision > 0) {
         if (result.length() <= precision) {
-            std::string zeros(precision + 1 - result.length(), '0');
+            std::string zeros(precision - result.length(), '0');
             result = "0." + zeros + result;
         } else {
             result.insert(result.length() - precision, ".");
@@ -33,6 +37,25 @@ std::string toString(const bigfloat_t& number, int precision) {
     }
 
     return result;
+}
+
+int countZeros(const bigfloat_t& val) {
+    auto number = toString(val);
+    size_t pointIndex = number.find('.');
+    if (pointIndex == std::string::npos) {
+        return 0;
+    }
+
+    int zeroCount = 0;
+    for (size_t i = pointIndex + 1; i < number.length(); ++i) {
+        if (number[i] == '0') {
+            zeroCount++;
+        } else {
+            break;
+        }
+    }
+
+    return zeroCount;
 }
 
 template<typename T>
@@ -121,21 +144,22 @@ std::vector<T> fitLeastSquares(const std::vector<T>& xValues, const std::vector<
     return gaussianElimination(ATA, ATb);
 }
 
-void createFileIfNotExists(const std::string& filename) {
-    std::ifstream infile(filename);
+void createFileIfNotExists(const std::string& workFile) {
+    std::ifstream infile(workFile);
     if (!infile.good()) {
-        std::ofstream file(filename);
+        std::ofstream file(workFile);
         if (!file.is_open())
-            std::cerr << "Не удалось создать файл: " << filename << std::endl;
+            std::cerr << "Не удалось создать файл: " << workFile << std::endl;
         file.close();
     }
 }
 
 template<typename T>
 void saveCoefficients(const std::vector<T>& coefficients, const std::string& filename) {
-    createFileIfNotExists(filename);
+    const std::string workPath = PathToData + filename;
+    createFileIfNotExists(workPath);
 
-    std::ofstream outFile(filename);
+    std::ofstream outFile(workPath);
     if (!outFile) {
         std::cerr << "Не удалось открыть файл с коэфициентами." << std::endl;
         return;
@@ -149,9 +173,10 @@ void saveCoefficients(const std::vector<T>& coefficients, const std::string& fil
 
 template<typename T>
 bool loadCoefficients(std::vector<T>& coefficients, const std::string& filename) {
-    createFileIfNotExists(filename);
+    const std::string workPath = PathToData + filename;
+    createFileIfNotExists(workPath);
 
-    std::ifstream inFile(filename);
+    std::ifstream inFile(workPath);
     if (!inFile) {
         std::cerr << "Не удалось открыть файл с коэфициентами." << std::endl;
         return false;
@@ -159,10 +184,34 @@ bool loadCoefficients(std::vector<T>& coefficients, const std::string& filename)
 
     std::string value;
     while (inFile >> value) {
-        coefficients.push_back(T(value)*10);
+        coefficients.push_back(T(value));
     }
     inFile.close();
     return true;
+}
+
+void saveToFile(const char* fileName, std::vector<DataResult<bigfloat_t>>& dataResults) {
+const std::string workPath = PathToData + fileName;
+
+std::ostringstream oss;
+oss << "step;result;time" << std::endl;
+
+for(const auto& r : dataResults) {
+oss << std::setw(2) << r.step << ";"
+<< toString(r.difference) << ";"
+<< std::setprecision(6) << r.computationTime.count()
+<< std::endl;
+}
+
+std::string outputString = oss.str();
+
+std::ofstream outputFile(workPath);
+if (outputFile.is_open()) {
+outputFile << outputString;
+outputFile.close();
+} else {
+std::cerr << "Ошибка открытия файла" << std::endl;
+}
 }
 
 #endif // VKR_HELPER_HPP

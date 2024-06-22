@@ -23,20 +23,7 @@ T chebyshevPolynomial(int n, T x) {
 }
 
 template<typename T>
-T calculateCoefficientChebyshev(int k, int numPoints, std::function<T(T)> f) {
-    T coefficient = T(0);
-    T weight = (k == 0) ? T(1.0 / numPoints) : T(2.0 / numPoints);
-
-    for (int n = 0; n < numPoints; ++n) {
-        T x = cos(bigfloat_t::pi * (T(n) + T(0.5)) / T(numPoints), 60);
-        coefficient += weight * f(x) * chebyshevPolynomial<T>(k, x);
-    }
-
-    return coefficient;
-}
-
-template<typename T>
-T calculateCoefficientChebyshevOMP(int k, int numPoints, std::function<T(T)> f) {
+T calculateCoefficientChebyshevOMP(int k, std::function<T(T)> f) {
     std::vector<T> local_sums(omp_get_max_threads(), T(0));
 
     T weight = (k == 0) ? T(1.0 / numPoints) : T(2.0 / numPoints);
@@ -46,7 +33,7 @@ T calculateCoefficientChebyshevOMP(int k, int numPoints, std::function<T(T)> f) 
         int thread_id = omp_get_thread_num();
         #pragma omp for
         for (int n = 0; n < numPoints; ++n) {
-            T x = cos(bigfloat_t::pi * (T(n) + T(0.5)) / T(numPoints), 60);
+            T x = cos(T(bigfloat_t::pi) * (T(n) + T(0.5)) / T(numPoints), 150);
             local_sums[thread_id] += weight * f(x) * chebyshevPolynomial<T>(k, x);
         }
     }
@@ -58,7 +45,6 @@ T calculateCoefficientChebyshevOMP(int k, int numPoints, std::function<T(T)> f) 
 
     return coefficient;
 }
-
 template<typename T>
 T approximateFunctionChebyshev(T x, const std::vector<T>& coefficients) {
     T sum = T(0.0);
@@ -91,18 +77,16 @@ T approximateFunctionChebyshevOMP(const T& x, const std::vector<T>& coefficients
 }
 
 template<typename T>
-std::vector<T> LoadCoeff(int maxCoefficient, std::string fileCoefficients, int numPoints, std::function<T(T)> f) {
+std::vector<T> LoadCoefficients(std::string fileCoefficients, std::function<T(T)> f) {
     std::vector<T> coefficients = {};
-    static std::vector<T> loadedCoefficients = {};
-    if(!loadedCoefficients.empty())
-        loadCoefficients(loadedCoefficients, fileCoefficients);
-
-    if (loadedCoefficients.size() <= maxCoefficient) {
-        std::cout << "Вычисление коэффициентов" << std::endl;
+    std::vector<T> loadedCoefficients = {};
+    loadCoefficients(loadedCoefficients, fileCoefficients);
+    std::cout << loadedCoefficients.size() << std::endl;
+    if (loadedCoefficients.size() < maxCoefficient) {
         coefficients.resize(maxCoefficient);
         std::copy(loadedCoefficients.begin(), loadedCoefficients.end(), coefficients.begin());
         for (int k = loadedCoefficients.size(); k < maxCoefficient; k++) {
-            coefficients[k] = calculateCoefficientChebyshevOMP(k, numPoints, f);
+            coefficients[k] = calculateCoefficientChebyshevOMP(k, f);
             std::cout << "Вычислен " << k+1 << " коэффициент" << std::endl;
         }
         saveCoefficients(coefficients, fileCoefficients);
@@ -115,8 +99,8 @@ std::vector<T> LoadCoeff(int maxCoefficient, std::string fileCoefficients, int n
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkChebyshev(T x, int maxCoefficient, int numPoints, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
-    std::vector<T> coefficients = LoadCoeff<T>(maxCoefficient, fileCoefficients, numPoints, f);
+std::vector<DataResult<T>> WorkChebyshev(T x, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
+    std::vector<T> coefficients = LoadCoefficients<T>(fileCoefficients, f);
     std::vector<DataResult<T>> results;
     std::cout << "Chebyshev:" << std::endl;
     for (int k = 0; k < maxCoefficient; k++) {

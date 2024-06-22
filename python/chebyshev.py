@@ -1,28 +1,55 @@
-import sympy as sp
-from helper import print_coefficients
+from mpmath import mp, cos, sin
+from decimal import Decimal, getcontext
 
-def chebyshev_coefficients(func, n, a=0, b=sp.pi / 2):
-    x = sp.symbols('x')
-    x_j = [sp.cos(sp.pi * (j + 0.5) / n) for j in range(n)]
-    x_j_transformed = [0.5 * (xj + 1) * (b - a) + a for xj in x_j]
+mp.dps = 200
 
-    f_j = [func.subs(x, xjt) for xjt in x_j_transformed]
 
-    coefficients = []
-    for k in range(n):
-        term = (2 / n) * sum(fj * sp.cos(sp.pi * k * (j + 0.5) / n) for j, fj in enumerate(f_j))
-        coefficients.append(term)
+def calculate_coefficient_chebyshev(k, num_points, f):
 
-    coefficients[0] /= 2
+    def chebyshev_polynomial(x):
+        return mp.chebyt(k, x)
 
-    return coefficients
+    nodes = [mp.cos(mp.pi * (i + 0.5) / num_points) for i in range(num_points)]
+    weights = [mp.pi / num_points] * num_points
 
-x = sp.symbols('x')
-f = sp.sin(x)
+    coefficient = 0
+    for x, w in zip(nodes, weights):
+        coefficient += w * f(x) * chebyshev_polynomial(x)
 
-max_derivative = 10
+    coefficient *= 2 / mp.pi
 
-coefficients = chebyshev_coefficients(f, max_derivative, 0, sp.pi / 2)
+    if k == 0:
+        coefficient /= 2
 
-print("Коэффициенты ряда Чебышева для sin(x) в точке x0 = pi/2:")
-print_coefficients(coefficients)
+    return coefficient
+
+
+def near_zero(value, tolerance=1e-200):
+    return abs(value) < tolerance
+
+
+def save_coefficients_to_file(coefficients, filename):
+    getcontext().prec = 200
+    with open(filename, 'w') as file:
+        for coef in coefficients:
+            if near_zero(coef):
+                file.write("0.0\n")
+            else:
+                file.write(format(Decimal(str(coef)), 'f') + '\n')
+
+num_points = 150
+max_degree = 100
+
+sin_coefficients = []
+for k in range(max_degree + 1):
+    coef = calculate_coefficient_chebyshev(k, num_points, sin)
+    sin_coefficients.append(coef)
+save_coefficients_to_file(sin_coefficients, '../data/python_chebyshev_coefficients_sin.txt')
+
+cos_coefficients = []
+for k in range(max_degree + 1):
+    coef = calculate_coefficient_chebyshev(k, num_points, cos)
+    cos_coefficients.append(coef)
+save_coefficients_to_file(cos_coefficients, '../data/python_chebyshev_coefficients_cos.txt')
+
+print("Коэффициенты сохранены в файлы ../data/python_chebyshev_coefficients_sin.txt и ../data/python_chebyshev_coefficients_cos.txt")

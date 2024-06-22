@@ -17,8 +17,8 @@ public:
     : result(res), difference(diff), x(x), step(s), computationTime(t) {}
 
     friend std::ostream& operator<<(std::ostream& os, const DataResult<T>& dr) {
-        os << "Result: " << toString(dr.result, 300)
-           << ", Diff: " << std::scientific << std::setprecision(0) << toString(dr.difference, 300)
+        os << "Result: " << toString(dr.result)
+           << ", Diff: " << std::scientific << std::setprecision(0) << toString(dr.difference)
            << ", Step: " << dr.step
            << ", Time: " << std::fixed << std::setprecision(6) << dr.computationTime.count() << "s";
         return os;

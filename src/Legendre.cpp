@@ -26,8 +26,8 @@ T legendrePolynomial(int n, T x) {
 template<typename T>
 T approximateFunctionLegendre(const T& x, const std::vector<T>& coefficients) {
     T sum = T(0.0);
-    for (size_t k = 0; k < coefficients.size(); ++k) {
-        sum += coefficients[k] * legendrePolynomial((int)(k), x);
+    for (int k = 0; k < coefficients.size(); ++k) {
+        sum += coefficients[k] * legendrePolynomial(k, x);
     }
     return sum;
 }
@@ -41,8 +41,8 @@ T approximateFunctionLegendreOMP(const T& x, const std::vector<T>& coefficients)
     {
         int thread_id = omp_get_thread_num();
         #pragma omp for
-        for (size_t k = 0; k < coefficients.size(); ++k) {
-            local_sums[thread_id] += coefficients[k] * legendrePolynomial((int)k, x);
+        for (int k = 0; k < coefficients.size(); ++k) {
+            local_sums[thread_id] += coefficients[k] * legendrePolynomial(k, x);
         }
     }
 
@@ -55,11 +55,11 @@ T approximateFunctionLegendreOMP(const T& x, const std::vector<T>& coefficients)
 }
 
 template<typename T>
-std::vector<DataResult<T>> WorkLegendre(T x, const int maxCoefficient, const int numPoints, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
+std::vector<DataResult<T>> WorkLegendre(T x, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
     std::vector<T> coefficients= {};
     std::vector<T> loadedCoefficients = {};
     loadCoefficients(loadedCoefficients, fileCoefficients);
-    if (loadedCoefficients.size() <= maxCoefficient) {
+    if (loadedCoefficients.size() < maxCoefficient) {
         std::cout << "Вычисление коэффициентов" << std::endl;
 
         std::vector<T> xValues(numPoints);
