@@ -81,7 +81,6 @@ std::vector<T> LoadCoefficients(std::string fileCoefficients, std::function<T(T)
     std::vector<T> coefficients = {};
     std::vector<T> loadedCoefficients = {};
     loadCoefficients(loadedCoefficients, fileCoefficients);
-    std::cout << loadedCoefficients.size() << std::endl;
     if (loadedCoefficients.size() < maxCoefficient) {
         coefficients.resize(maxCoefficient);
         std::copy(loadedCoefficients.begin(), loadedCoefficients.end(), coefficients.begin());
@@ -102,7 +101,7 @@ template<typename T>
 std::vector<DataResult<T>> WorkChebyshev(T x, std::function<T(T)> f, T result_x, bool isParallel, std::string fileCoefficients) {
     std::vector<T> coefficients = LoadCoefficients<T>(fileCoefficients, f);
     std::vector<DataResult<T>> results;
-    std::cout << "Chebyshev:" << std::endl;
+    std::cout << "Work Chebyshev" << std::endl;
     for (int k = 0; k < maxCoefficient; k++) {
         std::vector<T> currentCoefficients(coefficients.begin(), coefficients.begin() + k + 1);
 
@@ -118,8 +117,9 @@ std::vector<DataResult<T>> WorkChebyshev(T x, std::function<T(T)> f, T result_x,
         auto result = DataResult<T>(approxValue, abs(result_x - approxValue), x, k, end - start);
         results.emplace_back(result);
 
-        std::cout << result << std::endl;
+        PRINT_IF_LOGS_ENABLED(result)
     }
+    PRINT_END()
 
     return results;
 }

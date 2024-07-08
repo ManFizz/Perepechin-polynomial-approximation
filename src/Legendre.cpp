@@ -81,7 +81,7 @@ std::vector<DataResult<T>> WorkLegendre(T x, std::function<T(T)> f, T result_x, 
     }
 
     std::vector<DataResult<T>> results;
-    std::cout << "Legendre:"<< std::endl;
+    std::cout << "Work Legendre"<< std::endl;
     for (int k = 0; k < maxCoefficient; ++k) {
         std::vector<T> currentCoefficients(coefficients.begin(), coefficients.begin() + k + 1);
 
@@ -97,8 +97,9 @@ std::vector<DataResult<T>> WorkLegendre(T x, std::function<T(T)> f, T result_x, 
         auto result = DataResult<T>(approxValue, abs(result_x - approxValue), x, k, end - start);
         results.emplace_back(result);
 
-        std::cout << result << std::endl;
+        PRINT_IF_LOGS_ENABLED(result)
     }
+    PRINT_END()
 
     return results;
 }

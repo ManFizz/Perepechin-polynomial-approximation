@@ -47,7 +47,7 @@ bigfloat_t approximateCosTaylor(bigfloat_t& x, int terms) {
 std::vector<DataResult<bigfloat_t>> WorkTaylor(bigfloat_t& x, int maxCoefficient, bigfloat_t& result_x, std::function<bigfloat_t(bigfloat_t&, int)> f) {
     std::vector<DataResult<bigfloat_t>> results;
 
-    std::cout << "Taylor:" << std::endl;
+    std::cout << "Work Taylor" << std::endl;
     for (int k = 0; k < maxCoefficient; ++k) {
 
         auto start = std::chrono::high_resolution_clock::now();
@@ -57,9 +57,10 @@ std::vector<DataResult<bigfloat_t>> WorkTaylor(bigfloat_t& x, int maxCoefficient
         auto result = DataResult<bigfloat_t>(approxValue, abs(result_x - approxValue), x, k, end - start);
         results.emplace_back(result);
 
-        std::cout << result << std::endl;
+        PRINT_IF_LOGS_ENABLED(result)
     }
     f(x, -1);
+    PRINT_END()
 
     return results;
 }
