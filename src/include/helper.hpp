@@ -194,12 +194,14 @@ void saveToFile(const char* fileName, std::vector<DataResult<bigfloat_t>>& dataR
 const std::string workPath = PathToData + fileName;
 
 std::ostringstream oss;
-oss << "step;result;time" << std::endl;
+oss << "step;result;difference;time;x" << std::endl;
 
 for(const auto& r : dataResults) {
 oss << std::setw(2) << r.step << ";"
+<< toString(r.result) << ";"
 << toString(r.difference) << ";"
-<< std::setprecision(6) << r.computationTime.count()
+<< std::setprecision(6) << r.computationTime.count() << ";"
+<< toString(r.x)
 << std::endl;
 }
 
