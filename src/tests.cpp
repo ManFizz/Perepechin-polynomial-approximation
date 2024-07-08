@@ -137,3 +137,26 @@ void compareCoefficients() {
         std::cout << "python coeff cos_omp cheb: " << countZeros(abs(value - dotti)) << std::endl;
     }
 }
+
+void TestApproxChebCos() {
+    const int maxCoeff = 25;
+    std::vector<DataResult<bigfloat_t>> results;
+    auto coefficients = LoadCoefficients<bigfloat_t>(ChebyshevCosFileName, fcos<bigfloat_t>);
+    std::vector<bigfloat_t> currentCoefficients(coefficients.begin(), coefficients.begin() + maxCoeff + 1);
+
+    for (bigfloat_t x = -1.0; x <= 1.0; x += 0.02) {
+        auto start = std::chrono::high_resolution_clock::now();
+        bigfloat_t approx = approximateFunctionChebyshevOMP(x, currentCoefficients);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> computationTime = end - start;
+
+        bigfloat_t actual = cos(x, 200);
+        bigfloat_t difference = abs(approx - actual);
+
+        DataResult<bigfloat_t> r = DataResult(approx, difference, x, maxCoeff, computationTime);
+        results.emplace_back(r);
+        std::cout << toString(x, 3) << std::endl;
+    }
+
+    saveToFile("approx_cheb_cos.csv",results);
+}
